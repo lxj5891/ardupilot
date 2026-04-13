@@ -330,15 +330,23 @@ void Tiltrotor::continuous_update(void)
                 pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
             }
             
+            float base_output = 0.5f;
             int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
-            float extra_sign = extra_pitch > 0?1:-1;
+            float extra_sign = extra_pitch > 0 ? 1 : -1;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
             tilt_motor  = extra_elevator + tilt_motor * vectored_hover_gain;
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * constrain_float(tilt_motor, 0, 1));
+            if (extra_sign == 1) {
+                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * (constrain_float(tilt_motor, 0, 1) + base_output));
+            } else if (extra_sign == -1)
+                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * (base_output - constrain_float(tilt_motor, 0, 1)));
+            } else {
+                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * base_output);
+            }
+            
             
 
             static uint32_t last_send_ms = 0;
