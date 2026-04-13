@@ -330,7 +330,6 @@ void Tiltrotor::continuous_update(void)
                 pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
             }
             
-            const float base_output = 0.5f;
             int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_elevator = 0;
@@ -340,20 +339,9 @@ void Tiltrotor::continuous_update(void)
             }
             tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
             
-            // 根据俯仰误差方向设置舵机输出，base_output 为中位（0.5 对应 1500us）
-            float servo_output;
-            if (extra_pitch > 0) {
-                // 抬头误差，增加输出
-                servo_output = base_output + constrain_float(tilt_motor / SERVO_MAX, 0, 0.5f);
-            } else if (extra_pitch < 0) {
-                // 低头误差，减少输出
-                servo_output = base_output - constrain_float(fabsf(tilt_motor) / SERVO_MAX, 0, 0.5f);
-            } else {
-                // 无误差，保持中位
-                servo_output = base_output;
-            }
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * servo_output);
-            
+            // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
+            // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX));
             
 
             static uint32_t last_send_ms = 0;

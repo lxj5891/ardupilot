@@ -831,6 +831,8 @@ void Plane::force_flare(void)
         if (quadplane.tailsitter.enabled()) {
             tilt = SERVO_MAX; //this is tilts up for a tailsitter
         }
+
+        SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt);
         SRV_Channels::set_output_scaled(SRV_Channel::k_motor_tilt, tilt);
         SRV_Channels::set_output_scaled(SRV_Channel::k_tiltMotorLeft, tilt);
         SRV_Channels::set_output_scaled(SRV_Channel::k_tiltMotorRight, tilt);
