@@ -97,6 +97,7 @@ Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quad
 
 void Tiltrotor::setup()
 {
+    SRV_Channels::set_range(SRV_Channel::k_scripting1, 1000);
 
     if (!enable.configured() && ((tilt_mask != 0) || (type == TILT_TYPE_BICOPTER))) {
         enable.set_and_save(1);
@@ -117,7 +118,7 @@ void Tiltrotor::setup()
                     ((SRV_Channels::function_assigned(SRV_Channel::k_throttleLeft) || SRV_Channels::function_assigned(SRV_Channel::k_throttleRight))
                         && (type != TILT_TYPE_BICOPTER));
 
-    SRV_Channels::set_range(SRV_Channel::k_scripting1, 1000);
+    
 
     // check if there are any permanent VTOL motors
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; ++i) {
@@ -337,7 +338,8 @@ void Tiltrotor::continuous_update(void)
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
             tilt_motor  = extra_elevator + tilt_motor * vectored_hover_gain;
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * constrain_float(tilt_motor, 0, 1));
+            
 
             static uint32_t last_send_ms = 0;
             uint32_t now = AP_HAL::millis();
