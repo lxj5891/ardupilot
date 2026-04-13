@@ -330,22 +330,29 @@ void Tiltrotor::continuous_update(void)
                 pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
             }
             
-            float base_output = 0.5f;
+            const float base_output = 0.5f;
             int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
-            float extra_sign = extra_pitch > 0 ? 1 : -1;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
+                float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
-            tilt_motor  = extra_elevator + tilt_motor * vectored_hover_gain;
-            if (extra_sign == 1) {
-                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * (constrain_float(tilt_motor, 0, 1) + base_output));
-            } else if (extra_sign == -1)
-                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * (base_output - constrain_float(tilt_motor, 0, 1)));
+            tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
+            
+            // 根据俯仰误差方向设置舵机输出，base_output 为中位（0.5 对应 1500us）
+            float servo_output;
+            if (extra_pitch > 0) {
+                // 抬头误差，增加输出
+                servo_output = base_output + constrain_float(tilt_motor / SERVO_MAX, 0, 0.5f);
+            } else if (extra_pitch < 0) {
+                // 低头误差，减少输出
+                servo_output = base_output - constrain_float(fabsf(tilt_motor) / SERVO_MAX, 0, 0.5f);
             } else {
-                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * base_output);
+                // 无误差，保持中位
+                servo_output = base_output;
             }
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * servo_output);
             
             
 
