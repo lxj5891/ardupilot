@@ -317,8 +317,19 @@ void Tiltrotor::continuous_update(void)
 
             float vectored_hover_gain = 0.5;
             float vectored_hover_power = 2.5;
-            float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
-            int32_t pitch_error_cd = (des_pitch_cd - quadplane.ahrs_view->pitch_sensor) * 0.5;
+            
+            // 在手动模式下，使用飞手输入的俯仰角作为目标
+            // 获取飞手的俯仰输入（-1 到 1）
+            float pilot_pitch = 0.0f;
+            
+            // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
+            // 或者使用遥控器输入来计算期望俯仰
+            if (is_zero(pilot_pitch)) {
+                // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
+                pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
+            }
+            
+            int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
             float extra_elevator = 0;
@@ -331,7 +342,9 @@ void Tiltrotor::continuous_update(void)
             static uint32_t last_send_ms = 0;
             uint32_t now = AP_HAL::millis();
             if (now - last_send_ms >= 1000) {
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "TiltMotor: %.2f", tilt_motor);
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Tilt=%.1f Perr=%d Tgt=%.1f Cur=%.1f", 
+                              (double)tilt_motor, (int)pitch_error_cd, 
+                              (double)(pilot_pitch*0.01), (double)(quadplane.ahrs_view->pitch_sensor*0.01));
                 last_send_ms = now;
             }
         } else {
