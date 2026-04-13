@@ -110,13 +110,15 @@ void Tiltrotor::setup()
 
     _is_vectored = tilt_mask != 0 && type == TILT_TYPE_VECTORED_YAW;
 
+
     // true if a fixed forward motor is configured, either throttle, throttle left  or throttle right.
     // bicopter tiltrotors use throttle left and right as tilting motors, so they don't count in that case.
     _have_fw_motor = SRV_Channels::function_assigned(SRV_Channel::k_throttle) ||
                     ((SRV_Channels::function_assigned(SRV_Channel::k_throttleLeft) || SRV_Channels::function_assigned(SRV_Channel::k_throttleRight))
                         && (type != TILT_TYPE_BICOPTER));
 
-
+    SRV_Channels::set_range(SRV_Channel::k_scripting1, 1000);
+    
     // check if there are any permanent VTOL motors
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; ++i) {
         if (motors->is_motor_enabled(i) && !is_motor_tilting(i)) {
@@ -143,6 +145,8 @@ void Tiltrotor::setup()
             SRV_Channels::set_range(SRV_Channel::k_tiltMotorRearRight, 1000);
         }
     }
+
+    
 
     transition = NEW_NOTHROW Tiltrotor_Transition(quadplane, motors, *this);
     if (!transition) {
