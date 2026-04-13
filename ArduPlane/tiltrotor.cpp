@@ -118,7 +118,7 @@ void Tiltrotor::setup()
                         && (type != TILT_TYPE_BICOPTER));
 
     SRV_Channels::set_range(SRV_Channel::k_scripting1, 1000);
-    
+
     // check if there are any permanent VTOL motors
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; ++i) {
         if (motors->is_motor_enabled(i) && !is_motor_tilting(i)) {
@@ -328,7 +328,12 @@ void Tiltrotor::continuous_update(void)
             tilt_motor  = extra_elevator + tilt_motor * vectored_hover_gain;
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
 
-
+            static uint32_t last_send_ms = 0;
+            uint32_t now = AP_HAL::millis();
+            if (now - last_send_ms >= 1000) {
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "TiltMotor: %.2f", tilt_motor);
+                last_send_ms = now;
+            }
         } else {
             // manual control of forward throttle up to max VTOL angle
             float settilt = 0.01f * quadplane.forward_throttle_pct();
