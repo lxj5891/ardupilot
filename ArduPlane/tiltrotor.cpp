@@ -310,7 +310,8 @@ void Tiltrotor::continuous_update(void)
             // no manual throttle control, set angle to zero
             // slew(0);
 
-            float vectored_hover_gain = 2;
+            float vectored_hover_gain = 0.5;
+            float vectored_hover_power = 2.5;
             float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
             int32_t pitch_error_cd = (des_pitch_cd - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;

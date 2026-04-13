@@ -28,7 +28,7 @@ list some basic and more used commands as example.
     supported and the next section shows how to get a full list of them.
 
     ```sh
-    ./waf configure --board CubeBlack
+    ./waf configure --board SpeedyBeeF405WING
     ./waf copter
     ```
 
@@ -48,6 +48,9 @@ list some basic and more used commands as example.
     ./waf configure --board bebop --static
     ./waf copter
     ```
+
+
+    SpeedyBeeF405WING
 
     The "arducopter" binary should appear in the `build/<board-name>/bin` directory.
 
