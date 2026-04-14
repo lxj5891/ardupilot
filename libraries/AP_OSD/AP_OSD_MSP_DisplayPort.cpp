@@ -64,21 +64,21 @@ void AP_OSD_MSP_DisplayPort::clear(void)
 {
     // check if we need to enable some options
     // but only for actual OSD screens
-    if (_osd.get_current_screen() < AP_OSD_NUM_DISPLAY_SCREENS) {
-        const uint8_t txt_resolution = _osd.screen[_osd.get_current_screen()].get_txt_resolution();
-        const uint8_t font_index = _osd.screen[_osd.get_current_screen()].get_font_index();
-        _displayport->msp_displayport_set_options(font_index, txt_resolution);
-    }
+    // if (_osd.get_current_screen() < AP_OSD_NUM_DISPLAY_SCREENS) {
+    //     const uint8_t txt_resolution = _osd.screen[_osd.get_current_screen()].get_txt_resolution();
+    //     const uint8_t font_index = _osd.screen[_osd.get_current_screen()].get_font_index();
+    //     _displayport->msp_displayport_set_options(font_index, txt_resolution);
+    // }
 
-    // clear remote MSP screen
-    _displayport->msp_displayport_clear_screen();
+    // // clear remote MSP screen
+    // _displayport->msp_displayport_clear_screen();
 
-    // toggle flashing @1Hz
-    const uint32_t now = AP_HAL::millis();
-    if ((uint32_t(now * 0.004) & 0x01) != _blink_on) {
-        _blink_on = !_blink_on;
-        blink_phase = (blink_phase+1)%4;
-    }
+    // // toggle flashing @1Hz
+    // const uint32_t now = AP_HAL::millis();
+    // if ((uint32_t(now * 0.004) & 0x01) != _blink_on) {
+    //     _blink_on = !_blink_on;
+    //     blink_phase = (blink_phase+1)%4;
+    // }
 }
 
 void AP_OSD_MSP_DisplayPort::write(uint8_t x, uint8_t y, const char* text)
