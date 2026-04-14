@@ -330,6 +330,8 @@ void Tiltrotor::continuous_update(void)
 
             int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
 
+            float base_output = 0.5f;
+            
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
@@ -338,9 +340,12 @@ void Tiltrotor::continuous_update(void)
             }
             tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
 
-            // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
-            // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX));
+            // 转换输出范围：从 -SERVO_MAX~SERVO_MAX 转换为 0~1（0.5为中心）
+            float output_normalized = base_output + (tilt_motor / (2.0f * SERVO_MAX));
+            output_normalized = constrain_float(output_normalized, 0.0f, 1.0f);
+            // 转换回 -SERVO_MAX~SERVO_MAX 用于 set_output_scaled
+            float output_scaled = (output_normalized - 0.5f) * 2.0f * SERVO_MAX;
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, output_scaled);
 
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
