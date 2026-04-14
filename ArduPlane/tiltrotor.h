@@ -128,8 +128,8 @@ private:
     // with slow tilt rates the tilt angle can lag
     bool angle_achieved;
 
-    uint32_t last_status_output_ms_1;
-    uint32_t last_status_output_ms_2;
+    uint32_t last_status_output_ms_1 = 0;
+    uint32_t last_status_output_ms_2 = 0;
 
     // references for convenience
     QuadPlane& quadplane;
