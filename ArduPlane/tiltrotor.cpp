@@ -334,19 +334,20 @@ void Tiltrotor::continuous_update(void)
 
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_elevator = 0;
-            float extra_sign = 1.0f;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
-                extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
+                float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
             tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
 
             // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
             // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
-            if (extra_sign == 1.0f) {
+            if (is_positive(extra_pitch)) {
                 SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX) + base_output);
-            } else if (extra_sign == -1.0f) {
+            } else if (is_negative(extra_pitch)) {
                 SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, base_output - constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX));
+            } else {
+                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, base_output);
             }
             
 
