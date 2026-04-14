@@ -1,5 +1,5 @@
 # Minimal debug configuration for tiltrotor development
-include hwdef.dat
+# This file is used with --extra-hwdef, so don't include hwdef.dat again
 
 # Disable OSD completely
 undef OSD_ENABLED
