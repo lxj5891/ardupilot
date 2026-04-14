@@ -87,6 +87,8 @@ public:
     AP_Float fixed_gain;
     AP_Float flap_angle_deg;
 
+    float pilot_pitch = 0.0f;
+    
     float current_tilt;
     float current_throttle;
     bool _motors_active;
