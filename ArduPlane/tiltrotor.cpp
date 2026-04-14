@@ -314,36 +314,24 @@ void Tiltrotor::continuous_update(void)
             float vectored_hover_gain = 0.5;
             float vectored_hover_power = 2.5;
 
-            // 在手动模式下，使用飞手输入的俯仰角作为目标
-            // 获取飞手的俯仰输入（-1 到 1）
 
-            float pitch_input = 0.0f;
-
-            pilot_pitch = 0.0f;
-            // 使用遥控器俯仰通道输入，范围约 -1 到 1
-            pitch_input = (float)plane.channel_pitch->get_control_in() / plane.channel_pitch->get_range();
-            // 如果遥控器输入绝对值大于0.05，则增加或减少到pilot_pitch
-            if (fabsf(pitch_input) > 0.05f) {
-                pilot_pitch += pitch_input;
-            }
-
-            int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
-            float pitch_error_deg = pitch_error_cd * 0.01f;
+            float des_pitch_cd = 0.0f;
+            int32_t pitch_error_cd = (des_pitch_cd - quadplane.ahrs_view->pitch_sensor) * 0.5;
 
             float base_output = 0.5f;
-
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_elevator = 0;
+            int32_t extra_sign = 1;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
-                float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
+                extra_sign = extra_pitch > 0 ? 1 : -1;
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
             tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
             // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
             // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
-            if (is_positive(extra_pitch)) {
+            if (extra_sign == 1) {
                 SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * constrain_float(tilt_motor + base_output, 0,  1));
-            } else if (is_negative(extra_pitch)) {
+            } else if (extra_sign == -1) {
                 SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * constrain_float(base_output - tilt_motor, 0, 1));
             } else {
                 SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, base_output * 1000);
@@ -353,8 +341,8 @@ void Tiltrotor::continuous_update(void)
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
                 last_status_output_ms_1 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 1: tilt=%.1f pitch_err=%.1f motor=%.0f",
-                                      (double)current_tilt,
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 1: SERVO_MAX=%.1f pitch_err=%.1f motor=%.0f",
+                                      (double)SERVO_MAX,
                                       (double)pitch_error_deg,
                                       (double)tilt_motor);
             }
