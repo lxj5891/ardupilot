@@ -90,7 +90,7 @@ const AP_Param::GroupInfo Tiltrotor::var_info[] = {
   Q_TILT_MASK to a non-zero value
  */
 
-Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quadplane(_quadplane),motors(_motors),last_status_output_ms_1(0),last_status_output_ms_2(0)
+Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quadplane(_quadplane),motors(_motors)
 {
     AP_Param::setup_object_defaults(this, var_info);
 }
@@ -358,9 +358,10 @@ void Tiltrotor::continuous_update(void)
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_2 >= 1000) {
                 last_status_output_ms_2 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 2: settilt=%.1f current_tilt=%.1f",
-                                      (double)settilt,
-                                      (double)current_tilt);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 2: tilt=%.1f pitch=%.1f motor=%.0f",
+                                      (double)current_tilt,
+                                      (double)(pilot_pitch * 0.01),
+                                      (double)tilt_motor);
             }
         }
         return;
