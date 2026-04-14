@@ -97,6 +97,7 @@ Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quad
 
 void Tiltrotor::setup()
 {
+    SRV_Channels::set_range(SRV_Channel::k_scripting1, 1000);
 
     if (!enable.configured() && ((tilt_mask != 0) || (type == TILT_TYPE_BICOPTER))) {
         enable.set_and_save(1);
@@ -308,7 +309,35 @@ void Tiltrotor::continuous_update(void)
     {
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // no manual throttle control, set angle to zero
-            slew(0);
+            // slew(0);
+            float vectored_hover_gain = 0.5;
+            float vectored_hover_power = 2.5;
+
+            // 在手动模式下，使用飞手输入的俯仰角作为目标
+            // 获取飞手的俯仰输入（-1 到 1）
+
+            float pitch_input = 0.0f;
+            // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
+            // 或者使用遥控器输入来计算期望俯仰
+            if (is_zero(pilot_pitch)) {
+                // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
+                pitch_input = (float)plane.channel_pitch->get_control_in() / plane.channel_pitch->get_range();
+                pilot_pitch += pitch_input;
+            }
+
+            int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
+
+            float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
+            float extra_elevator = 0;
+            if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
+                float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
+                extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
+            }
+            tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
+
+            // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
+            // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX));
         } else {
             // manual control of forward throttle up to max VTOL angle
             float settilt = 0.01f * quadplane.forward_throttle_pct();
