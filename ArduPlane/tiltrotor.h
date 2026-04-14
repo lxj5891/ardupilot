@@ -128,6 +128,9 @@ private:
     // with slow tilt rates the tilt angle can lag
     bool angle_achieved;
 
+    uint32_t last_status_output_ms_1;
+    uint32_t last_status_output_ms_2;
+
     // references for convenience
     QuadPlane& quadplane;
     AP_MotorsMulticopter*& motors;

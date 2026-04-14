@@ -90,7 +90,7 @@ const AP_Param::GroupInfo Tiltrotor::var_info[] = {
   Q_TILT_MASK to a non-zero value
  */
 
-Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quadplane(_quadplane),motors(_motors)
+Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quadplane(_quadplane),motors(_motors),last_status_output_ms(0)
 {
     AP_Param::setup_object_defaults(this, var_info);
 }
@@ -342,11 +342,26 @@ void Tiltrotor::continuous_update(void)
             // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX));
 
-            // QGC 每隔一秒输出一次 tiltrotor 状态
+            uint32_t now = AP_HAL::millis();
+            if (now - last_status_output_ms_1 >= 1000) {
+                last_status_output_ms_1 = now;
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 1: tilt=%.1f pitch=%.1f motor=%.0f",
+                                      (double)current_tilt,
+                                      (double)(pilot_pitch * 0.01),
+                                      (double)tilt_motor);
+            }
         } else {
             // manual control of forward throttle up to max VTOL angle
             float settilt = 0.01f * quadplane.forward_throttle_pct();
-            slew(MIN(settilt * max_angle_deg * (1/90.0), get_forward_flight_tilt())); 
+            slew(MIN(settilt * max_angle_deg * (1/90.0), get_forward_flight_tilt()));
+
+            uint32_t now = AP_HAL::millis();
+            if (now - last_status_output_ms_2 >= 1000) {
+                last_status_output_ms_2 = now;
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 2: settilt=%.1f current_tilt=%.1f",
+                                      (double)settilt,
+                                      (double)current_tilt);
+            }
         }
         return;
     }
