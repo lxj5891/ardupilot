@@ -322,15 +322,17 @@ void Tiltrotor::continuous_update(void)
             // 在手动模式下，使用飞手输入的俯仰角作为目标
             // 获取飞手的俯仰输入（-1 到 1）
             float pilot_pitch = 0.0f;
-            
+            float pitch_input = 0.0f;
             // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
             // 或者使用遥控器输入来计算期望俯仰
             if (is_zero(pilot_pitch)) {
                 // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
-                pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
+                pitch_input = (float)plane.channel_pitch->get_control_in() / plane.channel_pitch->get_range();
+                pilot_pitch += pitch_input;
             }
             
             int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
+
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {

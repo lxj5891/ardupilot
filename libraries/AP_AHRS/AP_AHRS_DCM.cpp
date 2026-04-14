@@ -509,8 +509,8 @@ void
 AP_AHRS_DCM::drift_correction_yaw(void)
 {
     bool new_value = false;
-    float yaw_error;
-    float yaw_deltat;
+    float yaw_error = 0;
+    float yaw_deltat = 0;
 
     const AP_GPS &_gps = AP::gps();
 
