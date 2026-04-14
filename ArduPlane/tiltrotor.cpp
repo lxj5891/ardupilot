@@ -317,7 +317,9 @@ void Tiltrotor::continuous_update(void)
             // 在手动模式下，使用飞手输入的俯仰角作为目标
             // 获取飞手的俯仰输入（-1 到 1）
 
-            float pitch_input = 0.0f;
+            // float pitch_input = 0.0f;
+
+            pilot_pitch = 0.0f;
             // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
             // 或者使用遥控器输入来计算期望俯仰
             // if (is_zero(pilot_pitch)) {
@@ -339,6 +341,8 @@ void Tiltrotor::continuous_update(void)
             // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
             // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, constrain_float(tilt_motor, -SERVO_MAX, SERVO_MAX));
+
+            // QGC 每隔一秒输出一次 tiltrotor 状态
         } else {
             // manual control of forward throttle up to max VTOL angle
             float settilt = 0.01f * quadplane.forward_throttle_pct();
