@@ -307,6 +307,7 @@ void Tiltrotor::continuous_update(void)
                plane.control_mode == &plane.mode_qstabilize ||
                plane.control_mode == &plane.mode_qhover))
     {
+        float tilt_motor = 0.0f;
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // no manual throttle control, set angle to zero
             // slew(0);
