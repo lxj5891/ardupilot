@@ -343,7 +343,7 @@ void Tiltrotor::continuous_update(void)
                 last_status_output_ms_1 = now;
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 1: SERVO_MAX=%.1f pitch_err=%.1f motor=%.0f",
                                       (double)SERVO_MAX,
-                                      (double)pitch_error_deg,
+                                      (double)pitch_error_cd,
                                       (double)tilt_motor);
             }
         } else {
