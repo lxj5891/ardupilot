@@ -6,28 +6,11 @@ undef OSD_ENABLED
 define OSD_ENABLED 0
 
 # Disable all non-essential features
+# Note: minimize_common.inc already disables many features
+# Only define features that are NOT already in minimize_common.inc
 define HAL_QUADPLANE_ENABLED 1
-define HAL_SOARING_ENABLED 0
-define AP_ADVANCEDFAILSAFE_ENABLED 0
-define HAL_PARACHUTE_ENABLED 0
-define AP_RANGEFINDER_ENABLED 0
-define AP_ADSB_ENABLED 0
-define AP_AVOIDANCE_ENABLED 0
-define AP_SCRIPTING_ENABLED 0
-define AP_RELAY_ENABLED 0
-define AP_GRIPPER_ENABLED 0
-define AP_LANDINGGEAR_ENABLED 0
-define AP_WINCH_ENABLED 0
-define AP_BUTTON_ENABLED 0
-define AP_ICENGINE_ENABLED 0
 define AP_STATS_ENABLED 0
-define AP_BEACON_ENABLED 0
-define AP_PROXIMITY_ENABLED 0
-define AP_OPTICALFLOW_ENABLED 0
-define AP_TERRAIN_AVAILABLE 0
 define AP_CAMERA_ENABLED 0
-define AP_CAMERA_MOUNT_ENABLED 0
-define HAL_MOUNT_ENABLED 0
 
 # Minimal logging
 define HAL_LOGGING_BACKENDS_DEFAULT 1
