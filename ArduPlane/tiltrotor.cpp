@@ -338,6 +338,7 @@ void Tiltrotor::continuous_update(void)
                 float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
+            tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
             // 输出到舵机，范围 -SERVO_MAX 到 SERVO_MAX，0 为参数设置的中位
             // tilt_motor 已经是 -SERVO_MAX 到 SERVO_MAX 范围，直接输出
             if (is_positive(extra_pitch)) {
