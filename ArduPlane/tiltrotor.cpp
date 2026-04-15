@@ -337,11 +337,11 @@ void Tiltrotor::continuous_update(void)
                 sign_diff = 0;
             }
             pitch_error_cd = new_pitch_error_cd;
-            float calc_pitch_input = 0;
-            if (fabsf(pitch_input) > 0.01) {
-                calc_pitch_input = constrain_float(pitch_input * angle_max_cd, -1000, 1000) / 2000;
-                pitch_error_cd += calc_pitch_input;
-            }
+            // float calc_pitch_input = 0;
+            // if (fabsf(pitch_input) > 0.01) {
+            //     calc_pitch_input = constrain_float(pitch_input * angle_max_cd, -1000, 1000) / 2000;
+            //     pitch_error_cd += calc_pitch_input;
+            // }
 
             float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
 
