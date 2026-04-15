@@ -377,8 +377,8 @@ void Tiltrotor::continuous_update(void)
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f, pitch_sensor=%.1f",
                                       (double)sign_diff,
                                       (double)pitch_sensor);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f",
-                                      (double)pitch_input);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f, max_angle_deg=%0.1f",
+                                      (double)pitch_input, (double)max_angle_deg);
                                       
             }
         } else {
