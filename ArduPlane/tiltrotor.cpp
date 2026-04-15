@@ -321,7 +321,7 @@ void Tiltrotor::continuous_update(void)
             
             float sign_diff = 0;
             const float base_output = 0.5f;
-            const float pitch_sensor =  quadplane.ahrs_view->pitch_sensor;
+            const float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
             const float new_pitch_error_cd = (quadplane.pilot_pitch_offset - quadplane.ahrs_view->pitch_sensor) * 0.5;
 
                 // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
