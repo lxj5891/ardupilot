@@ -7,6 +7,8 @@ bool ModeQStabilize::_enter()
 {
     quadplane.throttle_wait = false;
 
+    ch7_reset = false;
+
     quadplane.pilot_pitch_offset = quadplane.ahrs_view->pitch_sensor;
     float plane_aparm_pitch_limit_max = plane.aparm.pitch_limit_max;
     plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, pitch_l_m=%.1f", (double)quadplane.pilot_pitch_offset, (double)plane_aparm_pitch_limit_max);
@@ -15,6 +17,26 @@ bool ModeQStabilize::_enter()
 
 void ModeQStabilize::update()
 {
+    RC_Channel *ch7 = plane.rc().channel(6);
+    int16_t ch7_input = 0;
+    if (ch7 != nullptr) {
+        ch7_input = ch7->get_control_in();
+    }
+
+    if (ch7_input < 0) {
+        ch7_reset = true;
+    }
+    
+    if (ch7_reset && ch7_input > 0) {
+        quadplane.pilot_pitch_offset = quadplane.ahrs_view->pitch_sensor;
+        static uint32_t last_status_output_ms = 0;
+        uint32_t now = AP_HAL::millis();
+        if (now - last_status_output_ms >= 1000) {
+            last_status_output_ms = now;
+            float plane_aparm_pitch_limit_max = plane.aparm.pitch_limit_max;
+            plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, pitch_l_m=%.1f, ch7=%d", (double)quadplane.pilot_pitch_offset, (double)plane_aparm_pitch_limit_max, (int)ch7_input);
+        }
+    }
     // set nav_roll and nav_pitch using sticks
     // Beware that QuadPlane::tailsitter_check_input (called from Plane::read_radio)
     // may alter the control_in values for roll and yaw, but not the corresponding

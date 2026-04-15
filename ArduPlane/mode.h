@@ -971,6 +971,7 @@ private:
 
     // flag that we have already called autoenable fences once in MODE TAKEOFF
     bool have_autoenabled_fences;
+    bool ch7_reset;
 
 };
 #if MODE_AUTOLAND_ENABLED
