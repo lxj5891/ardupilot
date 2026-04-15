@@ -329,7 +329,6 @@ void Tiltrotor::continuous_update(void)
             const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
             
 
-
             if (fabsf(new_pitch_error_cd) > 0) {
                 sign_diff = 1.0f;
             } else if (fabsf(new_pitch_error_cd) < 0) {
@@ -341,7 +340,7 @@ void Tiltrotor::continuous_update(void)
             float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
 
             if (fabsf(pitch_input) > 0.01) {
-                extra_pitch = 
+                extra_pitch += 
                     constrain_float(pitch_input * MIN(plane.aparm.pitch_limit_max * 100, angle_max_cd), -1000, 1000) / 1000;
             }
 
