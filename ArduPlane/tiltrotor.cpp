@@ -326,7 +326,7 @@ void Tiltrotor::continuous_update(void)
 
                 // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
             float pitch_input = (float)plane.channel_pitch->get_control_in() / plane.channel_pitch->get_range();
-            const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
+            // const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
             
 
             if (fabsf(new_pitch_error_cd) - fabsf(pitch_error_cd) > 0) {
