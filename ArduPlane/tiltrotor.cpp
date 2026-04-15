@@ -329,9 +329,9 @@ void Tiltrotor::continuous_update(void)
             const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
             
 
-            if (fabsf(new_pitch_error_cd - pitch_error_cd) > 0) {
+            if (fabsf(new_pitch_error_cd) - fabsf(pitch_error_cd) > 0) {
                 sign_diff = 1.0f;
-            } else if (fabsf(new_pitch_error_cd - pitch_error_cd) < 0) {
+            } else if (fabsf(new_pitch_error_cd) - fabsf(pitch_error_cd) < 0) {
                 sign_diff = -1.0f;
             } else {
                 sign_diff = 0;
@@ -362,6 +362,10 @@ void Tiltrotor::continuous_update(void)
                 servo_output = base_output - constrain_float(fabsf(tilt_motor) / 1000, 0, 1) * 0.5;
             } else {
                 // 无误差，保持中位
+                servo_output = base_output;
+            }
+
+            if (sign_diff == 0) {
                 servo_output = base_output;
             }
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * servo_output);
