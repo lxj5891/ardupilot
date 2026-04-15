@@ -25,6 +25,14 @@ void ModeQStabilize::update()
         ch7_input = ch7->get_control_in();
     }
 
+    ch7_input = constrain_int16(ch7_input, -1000, 1000);
+    static uint32_t last_ch7_output_ms = 0;
+    uint32_t now = AP_HAL::millis();
+    if (now - last_ch7_output_ms >= 5000) {
+        last_ch7_output_ms = now;
+        plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: ch7_input=%d", (int)ch7_input);
+    }
+
     if (ch7_input < 0) {
         ch7_reset = true;
     }
@@ -34,6 +42,8 @@ void ModeQStabilize::update()
         plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, ch7=%d", (double)quadplane.pilot_pitch_offset, (int)ch7_input);
         ch7_reset = false;
     }
+
+    // 
     // set nav_roll and nav_pitch using sticks
     // Beware that QuadPlane::tailsitter_check_input (called from Plane::read_radio)
     // may alter the control_in values for roll and yaw, but not the corresponding
