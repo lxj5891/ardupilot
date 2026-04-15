@@ -339,8 +339,9 @@ void Tiltrotor::continuous_update(void)
             pitch_error_cd = new_pitch_error_cd;
             float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
 
-            if (fabsf(pitch_input) > 0.1) {
-                extra_pitch = pitch_input * MIN(plane.aparm.pitch_limit_max*100, angle_max_cd);
+            if (fabsf(pitch_input) > 0.01) {
+                extra_pitch = 
+                    constrain_float(pitch_input * MIN(plane.aparm.pitch_limit_max * 100, angle_max_cd), -1000, 1000) / 1000;
             }
 
             float extra_elevator = 0;
