@@ -328,11 +328,11 @@ void Tiltrotor::continuous_update(void)
             
             const float base_output = 0.5f;
             int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
-            float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
+            float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
                 float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
-                extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
+                extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * 1000;
             }
             tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
             
@@ -340,10 +340,10 @@ void Tiltrotor::continuous_update(void)
             float servo_output;
             if (extra_pitch > 0) {
                 // 抬头误差，增加输出
-                servo_output = base_output + constrain_float(tilt_motor / SERVO_MAX, 0, 1) * 0.5;
+                servo_output = base_output + constrain_float(tilt_motor / 1000, 0, 1) * 0.5;
             } else if (extra_pitch < 0) {
                 // 低头误差，减少输出
-                servo_output = base_output - constrain_float(fabsf(tilt_motor) / SERVO_MAX, 0, 1) * 0.5;
+                servo_output = base_output - constrain_float(fabsf(tilt_motor) / 1000, 0, 1) * 0.5;
             } else {
                 // 无误差，保持中位
                 servo_output = base_output;
