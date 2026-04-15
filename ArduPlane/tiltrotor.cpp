@@ -354,8 +354,7 @@ void Tiltrotor::continuous_update(void)
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
                 last_status_output_ms_1 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 1: SERVO_MAX=%.1f pitch_err=%.1f motor=%.0f",
-                                      (double)SERVO_MAX,
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: pitch_err=%.1f servo_output=%.0f",
                                       (double)pitch_error_cd,
                                       (double)servo_output);
             }
