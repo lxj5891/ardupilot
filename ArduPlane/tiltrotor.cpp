@@ -348,7 +348,7 @@ void Tiltrotor::continuous_update(void)
                 // 无误差，保持中位
                 servo_output = base_output;
             }
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * servo_output);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, SERVO_MAX * servo_output);
             
 
             uint32_t now = AP_HAL::millis();
