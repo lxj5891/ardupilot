@@ -7,8 +7,8 @@ bool ModeQStabilize::_enter()
 {
     quadplane.throttle_wait = false;
 
-    const AP_AHRS &ahrs = AP::ahrs();
-    quadplane.pilot_pitch_offset = ahrs.pitch_sensor;
+    const AP_AHRS &ahrs_test = AP::ahrs();
+    quadplane.pilot_pitch_offset = ahrs_test.pitch_sensor;
     return true;
 }
 
