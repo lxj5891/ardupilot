@@ -311,7 +311,7 @@ void Tiltrotor::continuous_update(void)
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // no manual throttle control, set angle to zero
             // slew(0);
-            float vectored_hover_gain = 0.5;
+            float vectored_hover_gain = 0.2;
             float vectored_hover_power = 2.5;
 
            // 在手动模式下，使用飞手输入的俯仰角作为目标
