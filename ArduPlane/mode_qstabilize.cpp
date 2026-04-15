@@ -19,7 +19,7 @@ bool ModeQStabilize::_enter()
 
 void ModeQStabilize::update()
 {
-    RC_Channel *ch7 = plane.rc().channel(6);
+    RC_Channel *ch7 = RC_Channels::rc_channel(6);
     int16_t ch7_input = 0;
     if (ch7 != nullptr) {
         ch7_input = ch7->get_control_in();
