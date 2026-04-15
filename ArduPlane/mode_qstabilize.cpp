@@ -20,12 +20,12 @@ bool ModeQStabilize::_enter()
 void ModeQStabilize::update()
 {
     RC_Channel *ch7 = RC_Channels::rc_channel(6);
-    int16_t ch7_input = 0;
+    int16_t ch7_input = -1;
     if (ch7 != nullptr) {
         ch7_input = ch7->get_control_in();
+        ch7_input = constrain_int16(ch7_input, -1000, 1000);
     }
-
-    ch7_input = constrain_int16(ch7_input, -1000, 1000);
+    
     static uint32_t last_ch7_output_ms = 0;
     uint32_t now = AP_HAL::millis();
     if (now - last_ch7_output_ms >= 5000) {
