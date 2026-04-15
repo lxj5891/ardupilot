@@ -347,7 +347,9 @@ void Tiltrotor::continuous_update(void)
             } else if (fabsf(new_pitch_error_cd) - fabsf(pitch_error_cd) < 0) {
                 sign_diff = -1.0f;
             } else {
-                sign_diff = 0;
+                if (fabsf(pitch_input) > 0.05) {
+                    sign_diff = 0;
+                }
             }
             pitch_error_cd = new_pitch_error_cd;
             // float calc_pitch_input = 0;
