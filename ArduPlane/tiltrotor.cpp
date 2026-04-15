@@ -318,14 +318,17 @@ void Tiltrotor::continuous_update(void)
             // 获取飞手的俯仰输入（-1 到 1）
             // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
             // 或者使用遥控器输入来计算期望俯仰
-            if (is_zero(pilot_pitch)) {
-                // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
-                pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
-            }
             
             float sign_diff = 0;
             const float base_output = 0.5f;
             const float new_pitch_error_cd = (quadplane.pilot_pitch_offset - quadplane.ahrs_view->pitch_sensor) * 0.5;
+
+                // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
+            float pitch_input = (float)plane.channel_pitch->get_control_in() / plane.channel_pitch->get_range();
+            const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
+            
+
+
             if (fabsf(new_pitch_error_cd) > 0) {
                 sign_diff = 1.0f;
             } else if (fabsf(new_pitch_error_cd) < 0) {
@@ -335,6 +338,11 @@ void Tiltrotor::continuous_update(void)
             }
             pitch_error_cd = new_pitch_error_cd;
             float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
+
+            if (fabsf(pitch_input) > 0.1) {
+                extra_pitch = pitch_input * MIN(plane.aparm.pitch_limit_max*100, angle_max_cd);
+            }
+
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
                 float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
