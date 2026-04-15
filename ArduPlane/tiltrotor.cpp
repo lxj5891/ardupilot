@@ -321,6 +321,7 @@ void Tiltrotor::continuous_update(void)
             
             float sign_diff = 0;
             const float base_output = 0.5f;
+            const float pitch_sensor =  quadplane.ahrs_view->pitch_sensor;
             const float new_pitch_error_cd = (quadplane.pilot_pitch_offset - quadplane.ahrs_view->pitch_sensor) * 0.5;
 
                 // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
@@ -373,8 +374,9 @@ void Tiltrotor::continuous_update(void)
                                       (double)pitch_error_cd,
                                       (double)tilt_motor,
                                       (double)1000 * servo_output);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f",
-                                      (double)sign_diff);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f, pitch_sensor=%.1f",
+                                      (double)sign_diff,
+                                      (double)pitch_sensor);
                                       
             }
         } else {
