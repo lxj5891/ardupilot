@@ -332,8 +332,7 @@ void Tiltrotor::continuous_update(void)
             } else {
                 const float pitch_rate = 100.0f;
                 float dt = plane.scheduler.get_loop_period_s();
-                des_pitch_cd += pitch_input * pitch_rate * dt;
-                des_pitch_cd = constrain_float(des_pitch_cd, -1000.0f, 1000.0f);
+                des_pitch_cd += constrain_float(pitch_input, -1.0f, 1.0f) * pitch_rate * dt * 100.0f;
             }
             
             const float new_pitch_error_cd = (des_pitch_cd - (quadplane.ahrs_view->pitch_sensor - quadplane.pilot_pitch_offset)) * 0.5;
