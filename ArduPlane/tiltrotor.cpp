@@ -329,17 +329,18 @@ void Tiltrotor::continuous_update(void)
             const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
             
 
-            if (fabsf(new_pitch_error_cd) > 0) {
+            if (fabsf(new_pitch_error_cd - pitch_error_cd) > 0) {
                 sign_diff = 1.0f;
-            } else if (fabsf(new_pitch_error_cd) < 0) {
+            } else if (fabsf(new_pitch_error_cd - pitch_error_cd) < 0) {
                 sign_diff = -1.0f;
             } else {
                 sign_diff = 0;
             }
             pitch_error_cd = new_pitch_error_cd;
+            float calc_pitch_input = 0;
             if (fabsf(pitch_input) > 0.01) {
-                pitch_error_cd += 
-                    constrain_float(pitch_input * MIN(plane.aparm.pitch_limit_max * 100, angle_max_cd), -1000, 1000) / 2000;
+                calc_pitch_input = constrain_float(pitch_input * angle_max_cd, -1000, 1000) / 2000;
+                pitch_error_cd += calc_pitch_input;
             }
 
             float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
@@ -376,6 +377,8 @@ void Tiltrotor::continuous_update(void)
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f, pitch_sensor=%.1f",
                                       (double)sign_diff,
                                       (double)pitch_sensor);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f",
+                                      (double)pitch_input);
                                       
             }
         } else {
