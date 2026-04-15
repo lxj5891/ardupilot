@@ -357,7 +357,7 @@ void Tiltrotor::continuous_update(void)
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: pitch_err=%.1f tm=%.1f servo_output=%.0f",
                                       (double)pitch_error_cd,
                                       (double)tilt_motor,
-                                      (double)servo_output);
+                                      (double)1000 * servo_output);
             }
         } else {
             // manual control of forward throttle up to max VTOL angle
