@@ -324,8 +324,9 @@ void Tiltrotor::continuous_update(void)
             const float base_output = 0.5f;
             const float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
     
-            float pitch_input = (float)plane.channel_pitch->get_control_in() / plane.channel_pitch->get_range();
-            
+            const float pitch_input_range = plane.channel_pitch->get_range();
+            const float pitch_input_in = (float)plane.channel_pitch->get_control_in();
+            float pitch_input = pitch_input_in / pitch_input_range;
             if (fabsf(pitch_input) < 0.05) {
                 des_pitch_cd = 0;
             } else {
@@ -394,8 +395,8 @@ void Tiltrotor::continuous_update(void)
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f, pitch_sensor=%.1f",
                                       (double)sign_diff,
                                       (double)pitch_sensor);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f, max_angle_deg=%0.1f",
-                                      (double)pitch_input, (double)max_angle_deg);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f, pitch_input_range=%0.1f",
+                                      (double)pitch_input_in, (double)pitch_input_range);
                                       
             }
         } else {
