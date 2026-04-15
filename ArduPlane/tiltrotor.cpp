@@ -350,7 +350,7 @@ void Tiltrotor::continuous_update(void)
                 float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * 1000;
             }
-            tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
+            tilt_motor = extra_elevator * vectored_hover_gain;
             
             // 根据俯仰误差方向设置舵机输出，base_output 为中位（0.5 对应 1500us）
             float servo_output;
