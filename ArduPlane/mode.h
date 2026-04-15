@@ -958,6 +958,8 @@ public:
     AP_Int16 level_alt;
     AP_Float ground_pitch;
 
+    bool ch7_reset;
+    
 protected:
     AP_Int16 target_dist;
     AP_Int8 level_pitch;
@@ -971,8 +973,7 @@ private:
 
     // flag that we have already called autoenable fences once in MODE TAKEOFF
     bool have_autoenabled_fences;
-    bool ch7_reset;
-
+    
 };
 #if MODE_AUTOLAND_ENABLED
 class ModeAutoLand: public Mode
