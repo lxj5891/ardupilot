@@ -31,7 +31,7 @@ void ModeQStabilize::update()
     
     if (ch7_reset && ch7_input > 0) {
         quadplane.pilot_pitch_offset = quadplane.ahrs_view->pitch_sensor;
-        plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, pitch_l_m=%.1f, ch7=%d", (double)quadplane.pilot_pitch_offset, (double)plane_aparm_pitch_limit_max, (int)ch7_input);
+        plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, ch7=%d", (double)quadplane.pilot_pitch_offset, (int)ch7_input);
         ch7_reset = false;
     }
     // set nav_roll and nav_pitch using sticks
