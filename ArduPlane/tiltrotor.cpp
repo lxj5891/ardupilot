@@ -340,10 +340,10 @@ void Tiltrotor::continuous_update(void)
             float servo_output;
             if (extra_pitch > 0) {
                 // 抬头误差，增加输出
-                servo_output = base_output + constrain_float(tilt_motor / SERVO_MAX, 0, 1);
+                servo_output = base_output + constrain_float(tilt_motor / SERVO_MAX, 0, 1) * 0.5;
             } else if (extra_pitch < 0) {
                 // 低头误差，减少输出
-                servo_output = base_output - constrain_float(fabsf(tilt_motor) / SERVO_MAX, 0, 1);
+                servo_output = base_output - constrain_float(fabsf(tilt_motor) / SERVO_MAX, 0, 1) * 0.5;
             } else {
                 // 无误差，保持中位
                 servo_output = base_output;
