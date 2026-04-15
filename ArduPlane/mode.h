@@ -958,8 +958,6 @@ public:
     AP_Int16 level_alt;
     AP_Float ground_pitch;
 
-    bool ch7_reset;
-    
 protected:
     AP_Int16 target_dist;
     AP_Int8 level_pitch;

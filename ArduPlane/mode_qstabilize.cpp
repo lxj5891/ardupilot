@@ -3,6 +3,8 @@
 
 #if HAL_QUADPLANE_ENABLED
 
+bool ch7_reset = false;
+
 bool ModeQStabilize::_enter()
 {
     quadplane.throttle_wait = false;
