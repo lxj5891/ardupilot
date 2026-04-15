@@ -314,11 +314,8 @@ void Tiltrotor::continuous_update(void)
             float vectored_hover_gain = 0.5;
             float vectored_hover_power = 2.5;
 
-
            // 在手动模式下，使用飞手输入的俯仰角作为目标
             // 获取飞手的俯仰输入（-1 到 1）
-            float pilot_pitch = 0.0f;
-            
             // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
             // 或者使用遥控器输入来计算期望俯仰
             if (is_zero(pilot_pitch)) {
@@ -326,8 +323,17 @@ void Tiltrotor::continuous_update(void)
                 pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
             }
             
+            float sign_diff = 0;
             const float base_output = 0.5f;
-            int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
+            const float new_pitch_error_cd = (quadplane.pilot_pitch_offset - quadplane.ahrs_view->pitch_sensor) * 0.5;
+            if (fabsf(new_pitch_error_cd) > 0) {
+                sign_diff = 1.0f;
+            } else if (fabsf(new_pitch_error_cd) < 0) {
+                sign_diff = -1.0f;
+            } else {
+                sign_diff = 0;
+            }
+            pitch_error_cd = new_pitch_error_cd;
             float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
@@ -358,6 +364,9 @@ void Tiltrotor::continuous_update(void)
                                       (double)pitch_error_cd,
                                       (double)tilt_motor,
                                       (double)1000 * servo_output);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f",
+                                      (double)sign_diff);
+                                      
             }
         } else {
             // manual control of forward throttle up to max VTOL angle

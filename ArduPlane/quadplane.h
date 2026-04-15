@@ -492,6 +492,8 @@ private:
     // time we last set the loiter target
     uint32_t last_loiter_ms;
 
+    float pilot_pitch_offset = 0.0f;
+
     enum position_control_state {
         QPOS_NONE = 0,
         QPOS_APPROACH,
