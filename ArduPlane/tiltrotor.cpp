@@ -380,9 +380,9 @@ void Tiltrotor::continuous_update(void)
                 servo_output = base_output;
             }
 
-            if (is_zero(sign_diff)) {
-                servo_output = base_output;
-            }
+            // if (is_zero(sign_diff)) {
+            //     servo_output = base_output;
+            // }
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * servo_output);
             
 
