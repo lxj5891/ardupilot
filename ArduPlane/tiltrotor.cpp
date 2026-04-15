@@ -312,7 +312,7 @@ void Tiltrotor::continuous_update(void)
             // no manual throttle control, set angle to zero
             // slew(0);
             float vectored_hover_gain = max_angle_deg / 100.0f;
-            float vectored_hover_power = 2.5;
+            float vectored_hover_power = 1;
 
            // 在手动模式下，使用飞手输入的俯仰角作为目标
             // 获取飞手的俯仰输入（-1 到 1）
