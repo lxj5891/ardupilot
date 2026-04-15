@@ -337,12 +337,12 @@ void Tiltrotor::continuous_update(void)
                 sign_diff = 0;
             }
             pitch_error_cd = new_pitch_error_cd;
-            float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
-
             if (fabsf(pitch_input) > 0.01) {
-                extra_pitch += 
-                    constrain_float(pitch_input * MIN(plane.aparm.pitch_limit_max * 100, angle_max_cd), -1000, 1000) / 1000;
+                pitch_error_cd += 
+                    constrain_float(pitch_input * MIN(plane.aparm.pitch_limit_max * 100, angle_max_cd), -1000, 1000) / 2000;
             }
+
+            float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
 
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
