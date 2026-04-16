@@ -77,6 +77,7 @@ list some basic and more used commands as example.
 
     ```
 
+    ./waf configure --board  SpeedyBeeF405WING
 - **List of available vehicle types**
 
     Here is a list of the most common vehicle build targets:
