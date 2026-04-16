@@ -14,6 +14,11 @@ bool ModeQStabilize::_enter()
     quadplane.pilot_pitch_offset = quadplane.ahrs_view->pitch_sensor;
     float plane_aparm_pitch_limit_max = plane.aparm.pitch_limit_max;
     plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, pitch_l_m=%.1f", (double)quadplane.pilot_pitch_offset, (double)plane_aparm_pitch_limit_max);
+
+
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Updating barometer calibration");
+    AP::baro().update_calibration();
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Barometer calibration complete");
     return true;
 }
 
