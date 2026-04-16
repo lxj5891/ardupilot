@@ -55,7 +55,7 @@ void ModeQStabilize::update()
 
     // then scale to target angles in centidegrees
     if (plane.quadplane.tailsitter.active()) {
-        // tailsitters are different
+    //     // tailsitters are different
         set_tailsitter_roll_pitch(roll_input, pitch_input);
         return;
     }

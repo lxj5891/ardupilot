@@ -97,7 +97,8 @@ Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quad
 
 void Tiltrotor::setup()
 {
-    SRV_Channels::set_range(SRV_Channel::k_scripting1, 4500);
+    SRV_Channels::set_range(SRV_Channel::k_scripting1, SERVO_MAX);
+    SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, SERVO_MAX / 2);
 
     if (!enable.configured() && ((tilt_mask != 0) || (type == TILT_TYPE_BICOPTER))) {
         enable.set_and_save(1);
@@ -317,40 +318,59 @@ void Tiltrotor::continuous_update(void)
 
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // thrust vectoring VTOL modes
-            tilt_motor = SRV_Channels::get_output_scaled(SRV_Channel::k_scripting1);
+            float old_tilt_motor = SRV_Channels::get_output_scaled(SRV_Channel::k_scripting1);
+
+            float elevator = SRV_Channels::get_output_scaled(SRV_Channel::k_elevator);
+            // float aileron = SRV_Channels::get_output_scaled(SRV_Channel::k_aileron);
+            // tilt_motor  = elevator;
+
+            // SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
             // no manual throttle control, set angle to zero
             // slew(0);
-            float vectored_hover_gain = max_angle_deg / 100.0f;
+            // float vectored_hover_gain = max_angle_deg / 100.0f;
             float vectored_hover_power = 2.5;
-
+            // float a = 0.1;
             
             float des_pitch_cd = 0;
             float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
-            int32_t pitch_error_cd = (0 - quadplane.ahrs_view->pitch_sensor) * 0.5;
+
+            int32_t pitch_error_cd = (des_pitch_cd - (pitch_sensor - quadplane.pilot_pitch_offset));
+
+            if (pitch_error_cd > 2000) {
+                pitch_error_cd = 2000;
+            } else if (pitch_error_cd < -2000) {
+                pitch_error_cd = -2000;
+            }
+            
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
-            float extra_sign = extra_pitch > 0?1:-1;
+            float extra_sign = extra_pitch > 0 ? 1: -1;
             float extra_elevator = 0;
-            if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
+            if (quadplane.in_vtol_mode()) {
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
-            tilt_motor  = extra_elevator + tilt_motor * vectored_hover_gain;
-
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
-            
+            tilt_motor = extra_elevator + old_tilt_motor;
+            int32_t reset_tilt_motor = 0;
+            if (pitch_error_cd / 100 < 2 && pitch_error_cd / 100 > -2) {
+                reset_tilt_motor = 1;
+                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, SERVO_MAX / 2);
+            } else {
+                SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
+            }
 
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
                 last_status_output_ms_1 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: des_p_cd=%.1f pitch_e_cd=%.1f pitch_s_cd=%.1f",
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: p_cd=%.1f e_cd=%.1f p_s=%.1f",
                                       (double)des_pitch_cd,
                                       (double)pitch_error_cd,
                                       (double)pitch_sensor);
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_motor=%.1f, extra_elevator=%.1f",
                                       (double)tilt_motor,
                                       (double)extra_elevator);
-                // plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f, pitch_input_range=%0.1f",
-                //                       (double)pitch_input_in, (double)pitch_input_range);
-                                      
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_motor=%.1f",
+                                      (double)old_tilt_motor);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "elevator=%.1f,r=%ld",
+                                      (double)elevator, reset_tilt_motor);
             }
         } else {
             // manual control of forward throttle up to max VTOL angle
