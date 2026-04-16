@@ -327,7 +327,8 @@ void Tiltrotor::continuous_update(void)
             // 或者使用遥控器输入来计算期望俯仰
             
             float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
-            int32_t pitch_error_cd = (des_pitch_cd - quadplane.ahrs_view->pitch_sensor) * 0.5;
+            float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
+            int32_t pitch_error_cd = (des_pitch_cd - pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
             float extra_elevator = 0;
@@ -342,9 +343,10 @@ void Tiltrotor::continuous_update(void)
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
                 last_status_output_ms_1 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: des_pitch_cd=%.1f pitch_error_cd=%.1f",
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: des_p_cd=%.1f pitch_e_cd=%.1f pitch_s_cd=%.1f",
                                       (double)des_pitch_cd,
-                                      (double)pitch_error_cd);
+                                      (double)pitch_error_cd,
+                                      (double)pitch_sensor);
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_motor=%.1f, extra_elevator=%.1f",
                                       (double)tilt_motor,
                                       (double)extra_elevator);
