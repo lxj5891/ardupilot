@@ -325,6 +325,7 @@ void Tiltrotor::continuous_update(void)
 
             
             float des_pitch_cd = 0;
+            float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
             int32_t pitch_error_cd = (0 - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
