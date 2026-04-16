@@ -28,7 +28,7 @@ void ModeQStabilize::update()
     int16_t ch7_input = -1;
     if (ch7 != nullptr) {
         ch7_input = ch7->get_control_in();
-        ch7_input = constrain_int16(ch7_input, -1000, 1000);
+        ch7_input = constrain_int16(ch7_input, -1, 1);
     }
     
     static uint32_t last_ch7_output_ms = 0;
