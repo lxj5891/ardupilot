@@ -335,7 +335,7 @@ void Tiltrotor::continuous_update(void)
             }
             tilt_motor  = extra_elevator + tilt_motor * vectored_hover_gain;
 
-            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * tilt_motor);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
             
 
             uint32_t now = AP_HAL::millis();
