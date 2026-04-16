@@ -311,9 +311,9 @@ void Tiltrotor::continuous_update(void)
         // throttle 0 to 1
 
         // In full Q assist it is better to use copter I and zero plane
-        plane.pitchController.reset_I();
-        plane.rollController.reset_I();
-        plane.yawController.reset_I();
+        // plane.pitchController.reset_I();
+        // plane.rollController.reset_I();
+        // plane.yawController.reset_I();
 
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // thrust vectoring VTOL modes
@@ -324,7 +324,7 @@ void Tiltrotor::continuous_update(void)
             float vectored_hover_power = 2.5;
 
             
-            float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
+            float des_pitch_cd = 0;
             int32_t pitch_error_cd = (0 - quadplane.ahrs_view->pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
