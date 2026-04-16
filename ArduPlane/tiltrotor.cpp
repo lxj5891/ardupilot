@@ -97,7 +97,7 @@ Tiltrotor::Tiltrotor(QuadPlane& _quadplane, AP_MotorsMulticopter*& _motors):quad
 
 void Tiltrotor::setup()
 {
-    SRV_Channels::set_range(SRV_Channel::k_scripting1, 1000);
+    SRV_Channels::set_range(SRV_Channel::k_scripting1, 4500);
 
     if (!enable.configured() && ((tilt_mask != 0) || (type == TILT_TYPE_BICOPTER))) {
         enable.set_and_save(1);
