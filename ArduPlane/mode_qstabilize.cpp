@@ -13,27 +13,25 @@ bool ModeQStabilize::_enter()
 
     quadplane.pilot_pitch_offset = quadplane.ahrs_view->pitch_sensor;
     float plane_aparm_pitch_limit_max = plane.aparm.pitch_limit_max;
-    plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, pitch_l_m=%.1f", (double)quadplane.pilot_pitch_offset, (double)plane_aparm_pitch_limit_max);
+    plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, pitch_l_m=%.1f",
+        (double)quadplane.pilot_pitch_offset,
+        (double)plane_aparm_pitch_limit_max
+    );
 
-
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Updating barometer calibration");
-    AP::baro().update_calibration();
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Barometer calibration complete");
     return true;
 }
 
 void ModeQStabilize::update()
 {
-    RC_Channel *ch7 = RC_Channels::rc_channel(6);
+    RC_Channel *ch7 = rc().channel(6);
     int16_t ch7_input = -1;
     if (ch7 != nullptr) {
-        ch7_input = ch7->get_control_in();
-        ch7_input = constrain_int16(ch7_input, -1, 1);
+        ch7_input = ch7->norm_input();  // -1.0 ~ 1.0
     }
     
     static uint32_t last_ch7_output_ms = 0;
     uint32_t now = AP_HAL::millis();
-    if (now - last_ch7_output_ms >= 5000) {
+    if (now - last_ch7_output_ms >= 2000) {
         last_ch7_output_ms = now;
         plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: ch7_input=%d", (int)ch7_input);
     }
@@ -43,6 +41,9 @@ void ModeQStabilize::update()
     }
     
     if (ch7_reset && ch7_input > 0) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Updating barometer calibration");
+        AP::baro().update_calibration();
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Barometer calibration complete");
         quadplane.pilot_pitch_offset = quadplane.ahrs_view->pitch_sensor;
         plane.gcs().send_text(MAV_SEVERITY_INFO, "QStab: pilot_pitch_offset=%.1f, ch7=%d", (double)quadplane.pilot_pitch_offset, (int)ch7_input);
         ch7_reset = false;
