@@ -324,8 +324,14 @@ void Tiltrotor::continuous_update(void)
             float vectored_hover_power = 2.5;
 
             
+<<<<<<< HEAD
             float des_pitch_cd = 0;
             int32_t pitch_error_cd = (0 - quadplane.ahrs_view->pitch_sensor) * 0.5;
+=======
+            float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
+            float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
+            int32_t pitch_error_cd = (0 - pitch_sensor) * 0.5;
+>>>>>>> 4a74ac9cab58bbe90ae0c78722ab0168f40b5b1b
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
             float extra_elevator = 0;
@@ -340,9 +346,10 @@ void Tiltrotor::continuous_update(void)
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
                 last_status_output_ms_1 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: des_pitch_cd=%.1f pitch_error_cd=%.1f",
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: des_p_cd=%.1f pitch_e_cd=%.1f pitch_s_cd=%.1f",
                                       (double)des_pitch_cd,
-                                      (double)pitch_error_cd);
+                                      (double)pitch_error_cd,
+                                      (double)pitch_sensor);
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_motor=%.1f, extra_elevator=%.1f",
                                       (double)tilt_motor,
                                       (double)extra_elevator);
