@@ -324,14 +324,8 @@ void Tiltrotor::continuous_update(void)
             float vectored_hover_power = 2.5;
 
             
-<<<<<<< HEAD
             float des_pitch_cd = 0;
             int32_t pitch_error_cd = (0 - quadplane.ahrs_view->pitch_sensor) * 0.5;
-=======
-            float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
-            float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
-            int32_t pitch_error_cd = (0 - pitch_sensor) * 0.5;
->>>>>>> 4a74ac9cab58bbe90ae0c78722ab0168f40b5b1b
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
             float extra_elevator = 0;
