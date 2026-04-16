@@ -308,6 +308,8 @@ void Tiltrotor::continuous_update(void)
                plane.control_mode == &plane.mode_qhover))
     {
         float tilt_motor = 0.0f;
+        // throttle 0 to 1
+
         // In full Q assist it is better to use copter I and zero plane
         plane.pitchController.reset_I();
         plane.rollController.reset_I();
@@ -321,14 +323,10 @@ void Tiltrotor::continuous_update(void)
             float vectored_hover_gain = max_angle_deg / 100.0f;
             float vectored_hover_power = 2.5;
 
-           // 在手动模式下，使用飞手输入的俯仰角作为目标
-            // 获取飞手的俯仰输入（-1 到 1）
-            // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
-            // 或者使用遥控器输入来计算期望俯仰
             
             float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
             float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
-            int32_t pitch_error_cd = (des_pitch_cd - pitch_sensor) * 0.5;
+            int32_t pitch_error_cd = (0 - pitch_sensor) * 0.5;
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0?1:-1;
             float extra_elevator = 0;
