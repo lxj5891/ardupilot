@@ -352,12 +352,7 @@ void Tiltrotor::continuous_update(void)
     {
         float tilt_motor = 0.0f;
         // throttle 0 to 1
-
         // In full Q assist it is better to use copter I and zero plane
-        // plane.pitchController.reset_I();
-        // plane.rollController.reset_I();
-        // plane.yawController.reset_I();
-
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // thrust vectoring VTOL modes
             float old_tilt_motor = SRV_Channels::get_output_scaled(SRV_Channel::k_scripting1);
@@ -367,7 +362,7 @@ void Tiltrotor::continuous_update(void)
 
             int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
 
-            last_pitch_sensor = pitch_sensor;
+            
             if (pitch_error_cd > 2000) {
                 pitch_error_cd = 2000;
             } else if (pitch_error_cd < -2000) {
@@ -387,6 +382,7 @@ void Tiltrotor::continuous_update(void)
 
             uint32_t now2 = AP_HAL::millis();
             if (now2 - last_status_output_ms_2 >= 1000) {
+                last_pitch_sensor = pitch_sensor;
                 last_status_output_ms_2 = now2;
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: p_cd=%.1f e_cd=%.1f p_s=%.1f",
                                       (double)des_pitch_cd,
@@ -397,8 +393,6 @@ void Tiltrotor::continuous_update(void)
                                       (double)extra_elevator);
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_motor=%.1f",
                                       (double)old_tilt_motor);
-                // plane.gcs().send_text(MAV_SEVERITY_INFO, "elevator=%.1f",
-                //                       (double)elevator);
             }
         } else {
             // manual control of forward throttle up to max VTOL angle
