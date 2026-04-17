@@ -358,13 +358,10 @@ void Tiltrotor::continuous_update(void)
             float old_tilt_motor = SRV_Channels::get_output_scaled(SRV_Channel::k_scripting1);
             float vectored_hover_power = 2.5;
             float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
-
-
             float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
-
             int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
             last_pitch_sensor = pitch_sensor;
-            float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
+            float extra_pitch = constrain_float(pitch_error_cd, -200, 200) / 200;
             float extra_sign = extra_pitch > 0 ? 1: -1;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
