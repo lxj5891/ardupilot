@@ -295,6 +295,7 @@ void Tiltrotor::continuous_update(void)
         quadplane.get_vfwd_method() == QuadPlane::ActiveFwdThr::NEW &&
         quadplane.is_flying_vtol())
     {
+        float tilt_motor = 0.0f;
         // We are using the rotor tilt functionality controlled by Q_FWD_THR_GAIN which can
         // operate in all VTOL modes except Q_AUTOTUNE. Forward rotor tilt is used to produce
         // forward thrust equivalent to what would have been produced by a forward thrust motor
