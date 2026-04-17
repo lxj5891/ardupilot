@@ -370,6 +370,7 @@ void Tiltrotor::continuous_update(void)
             const float pitch_input_range = plane.channel_pitch->get_range();
             const float pitch_input_in = (float)plane.channel_pitch->get_control_in();
             float pitch_input = pitch_input_in / pitch_input_range;
+            
             if (fabsf(pitch_input) < 0.05) {
                 des_pitch_cd = 0;
             } else {
