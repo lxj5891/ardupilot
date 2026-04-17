@@ -361,7 +361,9 @@ void Tiltrotor::continuous_update(void)
             float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
             int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
             last_pitch_sensor = pitch_sensor;
-            float extra_pitch = constrain_float(pitch_error_cd, -200, 200) / 200;
+
+            float extra_pitch = constrain_float(pitch_error_cd, -45, 45) / 45;
+
             float extra_sign = extra_pitch > 0 ? 1: -1;
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
