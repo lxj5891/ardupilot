@@ -311,7 +311,7 @@ void Tiltrotor::continuous_update(void)
 
         int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
 
-        last_pitch_sensor = pitch_sensor;
+        // last_pitch_sensor = pitch_sensor;
         if (pitch_error_cd > 2000) {
             pitch_error_cd = 2000;
         } else if (pitch_error_cd < -2000) {
