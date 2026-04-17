@@ -341,8 +341,8 @@ void Tiltrotor::continuous_update(void)
                                     (double)extra_elevator);
             plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_moto 1r=%.1f",
                                     (double)old_tilt_motor);
-            plane.gcs().send_text(MAV_SEVERITY_INFO, "elevato 1r=%.1f",
-                                    (double)elevator);
+            // plane.gcs().send_text(MAV_SEVERITY_INFO, "elevato 1r=%.1f",
+            //                         (double)elevator);
         }
         return;
     } else if (!quadplane.assisted_flight &&
@@ -397,8 +397,8 @@ void Tiltrotor::continuous_update(void)
                                       (double)extra_elevator);
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_motor=%.1f",
                                       (double)old_tilt_motor);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "elevator=%.1f",
-                                      (double)elevator);
+                // plane.gcs().send_text(MAV_SEVERITY_INFO, "elevator=%.1f",
+                //                       (double)elevator);
             }
         } else {
             // manual control of forward throttle up to max VTOL angle
