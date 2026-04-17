@@ -365,7 +365,7 @@ void Tiltrotor::continuous_update(void)
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0 ? 1: -1;
             float extra_elevator = 0;
-            if (!is_zero(extra_elevator) && quadplane.in_vtol_mode()) {
+            if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
             tilt_motor = extra_elevator + old_tilt_motor;
