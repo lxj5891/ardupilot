@@ -381,7 +381,7 @@ void Tiltrotor::continuous_update(void)
                                       (double)des_pitch_cd,
                                       (double)pitch_error_cd,
                                       (double)pitch_sensor);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_m=%.4f, e_p=%.2f, extra_el=%.4f",
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_m=%.4f, e_p=%.2f, extra_el=%.8f",
                                       (double)tilt_motor,
                                       (double)extra_pitch,
                                       (double)extra_elevator);
