@@ -326,6 +326,8 @@ void Tiltrotor::continuous_update(void)
         }
         tilt_motor = extra_elevator + old_tilt_motor;
         // int32_t reset_tilt_motor = 0;
+
+        current_tilt = tilt_motor;
         
         SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
 
@@ -370,15 +372,27 @@ void Tiltrotor::continuous_update(void)
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
-            tilt_motor = extra_elevator + old_tilt_motor;
+            
+            int32_t reset_vtol = 1;
+            if (quadplane.is_flying_vtol()) {
+                reset_vtol = 1;
+                tilt_motor = extra_elevator + old_tilt_motor;
+            } else {
+                reset_vtol = 0;
+                tilt_motor = SERVO_MAX / 2;
+            }
 
             if (tilt_motor > SERVO_MAX) {
                 tilt_motor = SERVO_MAX;
+                current_tilt = SERVO_MAX + 100;
             } else if (tilt_motor < -SERVO_MAX) {
                 tilt_motor = -SERVO_MAX;
+                current_tilt = -SERVO_MAX - 100;
+            } else {
+                current_tilt = tilt_motor;
             }
-            // int32_t reset_tilt_motor = 0;
-           
+
+            
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
 
             uint32_t now2 = AP_HAL::millis();
@@ -393,8 +407,8 @@ void Tiltrotor::continuous_update(void)
                                       (double)tilt_motor,
                                       (double)extra_pitch,
                                       (double)extra_elevator);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_motor=%.1f",
-                                      (double)old_tilt_motor);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_motor=%.1f, reset_vtol=%ld",
+                                      (double)old_tilt_motor, reset_vtol);
             }
         } else {
             // manual control of forward throttle up to max VTOL angle
@@ -501,7 +515,7 @@ void Tiltrotor::write_log()
     struct log_tiltrotor pkt {
         LOG_PACKET_HEADER_INIT(LOG_TILT_MSG),
         time_us      : AP_HAL::micros64(),
-        current_tilt : current_tilt * 90.0,
+        current_tilt : current_tilt,
     };
 
     if (type != TILT_TYPE_VECTORED_YAW) {
