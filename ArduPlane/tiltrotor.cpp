@@ -657,7 +657,7 @@ void Tiltrotor::vectoring(void)
     float base_output = zero_out + (current_tilt * (level_out - zero_out));
 
     // static uint32_t last_debug_output_ms = 0;
-    // uint32_t now = AP_HAL::millis();
+    uint32_t now = AP_HAL::millis();
     // if (now - last_debug_output_ms >= 1000) {
     //     last_debug_output_ms = now;
     //     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "V: t_a=%.2f z_o=%.3f f_l=%.3f l_o=%.3f b_o=%.3f c_t=%.3f",
