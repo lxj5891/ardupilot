@@ -360,7 +360,7 @@ void Tiltrotor::continuous_update(void)
             float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
             float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
 
-            int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
+            int32_t pitch_error_cd = (des_pitch_cd - (last_pitch_sensor - pitch_sensor)) * 0.5;
 
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0 ? 1: -1;
