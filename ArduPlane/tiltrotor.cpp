@@ -295,55 +295,9 @@ void Tiltrotor::continuous_update(void)
         quadplane.get_vfwd_method() == QuadPlane::ActiveFwdThr::NEW &&
         quadplane.is_flying_vtol())
     {
-        float tilt_motor = 0.0f;
-        // We are using the rotor tilt functionality controlled by Q_FWD_THR_GAIN which can
-        // operate in all VTOL modes except Q_AUTOTUNE. Forward rotor tilt is used to produce
-        // forward thrust equivalent to what would have been produced by a forward thrust motor
-        // set to quadplane.forward_throttle_pct()
-        // const float fwd_g_demand = 0.01 * quadplane.forward_throttle_pct();
-        // const float fwd_tilt_deg = MIN(degrees(atanf(fwd_g_demand)), (float)max_angle_deg);
-        // slew(MIN(fwd_tilt_deg * (1/90.0), get_forward_flight_tilt()));
-
-        float old_tilt_motor = SRV_Channels::get_output_scaled(SRV_Channel::k_scripting1);
-        float vectored_hover_power = 2.5;
-        float des_pitch_cd = quadplane.attitude_control->get_att_target_euler_cd().y;
-        float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
-
-        int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
-
-        last_pitch_sensor = pitch_sensor;
-        if (pitch_error_cd > 2000) {
-            pitch_error_cd = 2000;
-        } else if (pitch_error_cd < -2000) {
-            pitch_error_cd = -2000;
-        }
-        
-        float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
-        float extra_sign = extra_pitch > 0 ? 1: -1;
-        float extra_elevator = 0;
-        if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
-            extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
-        }
-        tilt_motor = extra_elevator + old_tilt_motor;
-        // int32_t reset_tilt_motor = 0;
-        
-        SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
-
-        uint32_t now1 = AP_HAL::millis();
-        if (now1 - last_status_output_ms_1 >= 1000) {
-            last_status_output_ms_1 = 1;
-            plane.gcs().send_text(MAV_SEVERITY_INFO, "Til 1: p_cd=%.1f e_cd=%.1f p_s=%.1f",
-                                    (double)des_pitch_cd,
-                                    (double)pitch_error_cd,
-                                    (double)pitch_sensor);
-            plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_motor 1=%.1f, extra_elevator=%.1f",
-                                    (double)tilt_motor,
-                                    (double)extra_elevator);
-            plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_moto 1r=%.1f",
-                                    (double)old_tilt_motor);
-            // plane.gcs().send_text(MAV_SEVERITY_INFO, "elevato 1r=%.1f",
-            //                         (double)elevator);
-        }
+        const float fwd_g_demand = 0.01 * quadplane.forward_throttle_pct();
+        const float fwd_tilt_deg = MIN(degrees(atanf(fwd_g_demand)), (float)max_angle_deg);
+        slew(MIN(fwd_tilt_deg * (1/90.0), get_forward_flight_tilt()));
         return;
     } else if (!quadplane.assisted_flight &&
                (plane.control_mode == &plane.mode_qacro ||
