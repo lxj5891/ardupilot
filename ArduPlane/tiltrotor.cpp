@@ -354,53 +354,94 @@ void Tiltrotor::continuous_update(void)
         if (quadplane.rc_fwd_thr_ch == nullptr) {
             // no manual throttle control, set angle to zero
             // slew(0);
-            float vectored_hover_gain = 0.5;
-            float vectored_hover_power = 2.5;
-
+            float vectored_hover_gain = max_angle_deg / 100.0f;
+            float vectored_hover_power = 1;
 
            // 在手动模式下，使用飞手输入的俯仰角作为目标
             // 获取飞手的俯仰输入（-1 到 1）
-            float pilot_pitch = 0.0f;
-            
             // 如果姿态目标为0，则使用当前俯仰角（无误差控制）
             // 或者使用遥控器输入来计算期望俯仰
-            if (is_zero(pilot_pitch)) {
-                // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
-                pilot_pitch = plane.channel_pitch->get_control_in() * 10.0f; // 转换为厘度
+            
+            
+            float sign_diff = 0;
+            const float base_output = 0.5f;
+            const float pitch_sensor = quadplane.ahrs_view->pitch_sensor;
+    
+            const float pitch_input_range = plane.channel_pitch->get_range();
+            const float pitch_input_in = (float)plane.channel_pitch->get_control_in();
+            float pitch_input = pitch_input_in / pitch_input_range;
+            if (fabsf(pitch_input) < 0.05) {
+                des_pitch_cd = 0;
+            } else {
+                const float pitch_rate = 100.0f;
+                float dt = plane.scheduler.get_loop_period_s();
+                des_pitch_cd += constrain_float(pitch_input, -1.0f, 1.0f) * pitch_rate * dt * 100.0f;
             }
             
-            const float base_output = 0.5f;
-            int32_t pitch_error_cd = (pilot_pitch - quadplane.ahrs_view->pitch_sensor) * 0.5;
-            float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
+            const float new_pitch_error_cd = (des_pitch_cd - (quadplane.ahrs_view->pitch_sensor - quadplane.pilot_pitch_offset)) * 0.5;
+
+                // 使用遥控器俯仰通道输入，范围约 -4500 到 4500 (对应 -45° 到 45°)
+            
+            // const int16_t angle_max_cd = plane.quadplane.attitude_control->lean_angle_max_cd();
+            
+
+            if (fabsf(new_pitch_error_cd) - fabsf(pitch_error_cd) > 0) {
+                sign_diff = 1.0f;
+            } else if (fabsf(new_pitch_error_cd) - fabsf(pitch_error_cd) < 0) {
+                sign_diff = -1.0f;
+            } else {
+                if (fabsf(pitch_input) > 0.05) {
+                    sign_diff = 0;
+                }
+            }
+            pitch_error_cd = new_pitch_error_cd;
+            // float calc_pitch_input = 0;
+            // if (fabsf(pitch_input) > 0.01) {
+            //     calc_pitch_input = constrain_float(pitch_input * angle_max_cd, -1000, 1000) / 2000;
+            //     pitch_error_cd += calc_pitch_input;
+            // }
+
+            float extra_pitch = constrain_float(pitch_error_cd, -1000, 1000) / 1000;
+
             float extra_elevator = 0;
             if (!is_zero(extra_pitch) && quadplane.in_vtol_mode()) {
                 float extra_sign = extra_pitch > 0 ? 1.0f : -1.0f;
-                extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
+                extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * 1000;
             }
-            tilt_motor = extra_elevator + tilt_motor * vectored_hover_gain;
+            tilt_motor = extra_elevator * vectored_hover_gain;
             
             // 根据俯仰误差方向设置舵机输出，base_output 为中位（0.5 对应 1500us）
             float servo_output;
             if (extra_pitch > 0) {
                 // 抬头误差，增加输出
-                servo_output = base_output + constrain_float(tilt_motor / SERVO_MAX, 0, 0.5f);
+                servo_output = base_output + constrain_float(tilt_motor / 1000, 0, 1) * 0.5;
             } else if (extra_pitch < 0) {
                 // 低头误差，减少输出
-                servo_output = base_output - constrain_float(fabsf(tilt_motor) / SERVO_MAX, 0, 0.5f);
+                servo_output = base_output - constrain_float(fabsf(tilt_motor) / 1000, 0, 1) * 0.5;
             } else {
                 // 无误差，保持中位
                 servo_output = base_output;
             }
+
+            // if (is_zero(sign_diff)) {
+            //     servo_output = base_output;
+            // }
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, 1000 * servo_output);
             
 
             uint32_t now = AP_HAL::millis();
             if (now - last_status_output_ms_1 >= 1000) {
                 last_status_output_ms_1 = now;
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "Tiltrotor 1: SERVO_MAX=%.1f pitch_err=%.1f motor=%.0f",
-                                      (double)SERVO_MAX,
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: pitch_err=%.1f tm=%.1f servo_output=%.0f",
                                       (double)pitch_error_cd,
-                                      (double)servo_output);
+                                      (double)tilt_motor,
+                                      (double)1000 * servo_output);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "sign_diff=%.1f, pitch_sensor=%.1f",
+                                      (double)sign_diff,
+                                      (double)pitch_sensor);
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "pitch_input=%.1f, pitch_input_range=%0.1f",
+                                      (double)pitch_input_in, (double)pitch_input_range);
+                                      
             }
         } else {
             // manual control of forward throttle up to max VTOL angle
