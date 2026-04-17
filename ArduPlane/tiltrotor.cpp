@@ -329,9 +329,9 @@ void Tiltrotor::continuous_update(void)
         
         SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
 
-        uint32_t now = AP_HAL::millis();
-        if (now - last_status_output_ms_1 >= 1000) {
-            last_status_output_ms_1 = now;
+        uint32_t now1 = AP_HAL::millis();
+        if (now1 - last_status_output_ms_1 >= 1000) {
+            last_status_output_ms_1 = 1;
             plane.gcs().send_text(MAV_SEVERITY_INFO, "Til 1: p_cd=%.1f e_cd=%.1f p_s=%.1f",
                                     (double)des_pitch_cd,
                                     (double)pitch_error_cd,
@@ -385,9 +385,9 @@ void Tiltrotor::continuous_update(void)
            
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
 
-            uint32_t now = AP_HAL::millis();
-            if (now - last_status_output_ms_1 >= 1000) {
-                last_status_output_ms_1 = now;
+            uint32_t now2 = AP_HAL::millis();
+            if (now2 - last_status_output_ms_2 >= 1000) {
+                last_status_output_ms_2 = now2;
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "Til: p_cd=%.1f e_cd=%.1f p_s=%.1f",
                                       (double)des_pitch_cd,
                                       (double)pitch_error_cd,
