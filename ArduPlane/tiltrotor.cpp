@@ -362,13 +362,6 @@ void Tiltrotor::continuous_update(void)
 
             int32_t pitch_error_cd = (last_pitch_sensor - pitch_sensor) * 0.5;
 
-            
-            if (pitch_error_cd > 2000) {
-                pitch_error_cd = 2000;
-            } else if (pitch_error_cd < -2000) {
-                pitch_error_cd = -2000;
-            }
-            
             float extra_pitch = constrain_float(pitch_error_cd, -SERVO_MAX, SERVO_MAX) / SERVO_MAX;
             float extra_sign = extra_pitch > 0 ? 1: -1;
             float extra_elevator = 0;
@@ -388,7 +381,7 @@ void Tiltrotor::continuous_update(void)
                                       (double)des_pitch_cd,
                                       (double)pitch_error_cd,
                                       (double)pitch_sensor);
-                plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_motor=%.1f, extra_elevator=%.1f",
+                plane.gcs().send_text(MAV_SEVERITY_INFO, "tilt_motor=%.4f, extra_elevator=%.4f",
                                       (double)tilt_motor,
                                       (double)extra_elevator);
                 plane.gcs().send_text(MAV_SEVERITY_INFO, "old_tilt_motor=%.1f",
