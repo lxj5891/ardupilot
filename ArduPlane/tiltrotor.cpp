@@ -369,6 +369,12 @@ void Tiltrotor::continuous_update(void)
                 extra_elevator = extra_sign * powf(fabsf(extra_pitch), vectored_hover_power) * SERVO_MAX;
             }
             tilt_motor = extra_elevator + old_tilt_motor;
+
+            if (tilt_motor > SERVO_MAX) {
+                tilt_motor = SERVO_MAX;
+            } else if (tilt_motor < -SERVO_MAX) {
+                tilt_motor = -SERVO_MAX;
+            }
             // int32_t reset_tilt_motor = 0;
            
             SRV_Channels::set_output_scaled(SRV_Channel::k_scripting1, tilt_motor);
