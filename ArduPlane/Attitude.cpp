@@ -170,6 +170,7 @@ void Plane::stabilize_pitch()
         // we are holding the tail down during takeoff. Just convert
         // from a percentage to a -4500..4500 centidegree angle
         SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, 45*force_elevator);
+        SRV_Channels::set_output_scaled(SRV_Channel::k_scripting2, 45*force_elevator);
         return;
     }
 
