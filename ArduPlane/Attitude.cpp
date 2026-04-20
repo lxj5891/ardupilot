@@ -175,6 +175,7 @@ void Plane::stabilize_pitch()
 
     const float pitch_out = stabilize_pitch_get_pitch_out();
     SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, pitch_out);
+    SRV_Channels::set_output_scaled(SRV_Channel::k_scripting2, pitch_out);
 }
 
 float Plane::stabilize_pitch_get_pitch_out()
